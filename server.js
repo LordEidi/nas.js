@@ -91,13 +91,15 @@ function onRaidStatus(req, res, path)
 
     res.writeHead(200, {'Content-Type': 'text/plain'});
 
-    res.write('RAID Status');
-    // cat /proc/mdstat
-
     shell.exec('cat /proc/mdstat',function(code, output) {
-        res.write('Exit code:' + code);
-        res.write('Program output:' + output);
-        res.end('');
+
+        var json = JSON.stringify({
+            info: 'RAID Status',
+            exitCode: code,
+            programOutput: output
+        });
+
+        res.end(json);
     });
 }
 
@@ -112,7 +114,7 @@ function onBypass(req, res, path)
         res.end('');
 }
 
-function onGetWWWContent(req, res, url)
+function onGetStaticContent(req, res, url)
 {
     //res.writeHead(200, {'Content-Type': 'text/plain'});
 
@@ -144,7 +146,7 @@ crossroads.addRoute('/server/shutdown/', onShutdown);
 crossroads.addRoute('/raid/status/', onRaidStatus);
 crossroads.addRoute('/disc/{disc}/status', onDiscStatus);
 
-crossroads.addRoute('/www/{url*}', onGetWWWContent);
+crossroads.addRoute('/s/{url*}', onGetStaticContent);
 
 crossroads.bypassed.add(onBypass);
 
