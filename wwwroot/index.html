@@ -43,15 +43,31 @@
         ================================================== -->
     <script type="text/javascript" language="javascript">
         $(document).ready(function() {
-            $("#load1").click(function(event){
+            $("#cmdRaidStatus").click(function(event){
                 $.getJSON('/raid/status/', function(jd) {
-                    $('#stage').html('<p> Info: ' + jd.info + '</p>');
-                    $('#stage').append('<p>Exit Code: ' + jd.exitCode + '</p>');
-                    $('#stage').append('<p>Program Output: ' + jd.programOutput + '</p>');
+                    $('#resRaidStatus').html('<p> Info: ' + jd.info + '</p>');
+                    $('#resRaidStatus').append('<p>Exit Code: ' + jd.exitCode + '</p>');
+                    $('#resRaidStatus').append('<p>Program Output: ' + jd.programOutput + '</p>');
+                });
+            });
+
+            $("#cmdDiscStatus").click(function(event){
+                $.getJSON('/disc/all/status/', function(jd) {
+                    $('#resDiscStatus').html('<p> Info: ' + jd.info + '</p>');
+                    $('#resDiscStatus').append('<p>Exit Code: ' + jd.exitCode + '</p>');
+                    $('#resDiscStatus').append('<p>Program Output: ' + jd.programOutput + '</p>');
+                });
+            });
+
+            $("#cmdShutdown").click(function(event){
+                $.getJSON('/server/shutdown/', function(jd) {
+                    $('#resDiscStatus').html('<p> Info: ' + jd.info + '</p>');
+                    $('#resDiscStatus').append('<p>Exit Code: ' + jd.exitCode + '</p>');
+                    $('#resDiscStatus').append('<p>Program Output: ' + jd.programOutput + '</p>');
                 });
             });
         });
-    </script>
+    </script>load1
 
 </head>
 <body>
@@ -71,24 +87,22 @@
 		</div>
 		<div class="one-third column">
 			<h3>RAID Status</h3>
-            <button id="load1">Update</button>
-            <div id="stage">
+            <button id="cmdRaidStatus">Update</button>
+            <div id="resRaidStatus">
                 ...
             </div>
 		</div>
 		<div class="one-third column">
-			<h3>Three Core Principles</h3>
-			<p>Skeleton is built on three core principles:</p>
-			<ul class="square">
-				<li><strong>A Responsive Grid Down To Mobile</strong>: Elegant scaling from a browser to tablets to mobile.</li>
-				<li><strong>Fast to Start</strong>: It's a tool for rapid development with best practices</li>
-				<li><strong>Style Agnostic</strong>: It provides the most basic, beautiful styles, but is meant to be overwritten.</li>
-			</ul>
+			<h3>Discs Status</h3>
+            <button id="cmdDiscStatus">Update</button>
+            <div id="resDiscStatus">
+                ...
+            </div>
 		</div>
 		<div class="one-third column">
-			<h3>Docs &amp; Support</h3>
-			<p>The easiest way to really get started with Skeleton is to check out the full docs and info at <a href="http://www.getskeleton.com">www.getskeleton.com.</a>. Skeleton is also open-source and has a <a href="https://github.com/dhgamache/skeleton">project on git</a>, so check that out if you want to report bugs or create a pull request. If you have any questions, thoughts, concerns or feedback, please don't hesitate to email me at <a href="mailto:hi@getskeleton.com">hi@getskeleton.com</a>.</p>
-		</div>
+            <h3>System Shutdown</h3>
+            <button id="cmdShutdown">Update</button>
+        </div>
 
 	</div><!-- container -->
 

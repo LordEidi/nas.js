@@ -40,8 +40,6 @@ function onDiscStatus(req, res, disc)
 {
     res.writeHead(200, {'Content-Type': 'text/plain'});
 
-    res.write('Disc - '+ disc);
-
 //    var str = "The best things in life are free";
 //    var patt = new RegExp("e");
 //    var res = patt.test(str);
@@ -50,23 +48,29 @@ function onDiscStatus(req, res, disc)
 
     if(disc == 'all')
     {
-        res.write('all');
-
         shell.exec('mdadm --detail /dev/md0', function (code, output) {
-            res.write('Exit code:' + code);
-            res.write('Program output:' + output);
-            res.end('');
+
+            var json = JSON.stringify({
+                info: 'Disc Status',
+                exitCode: code,
+                programOutput: output
+            });
+
+            res.end(json);
         });
 
     }
     else
     {
-        res.write('Only one');
-
         shell.exec('mdadm --detail /dev/md0',function(code, output) {
-            res.write('Exit code:' + code);
-            res.write('Program output:' + output);
-            res.end('');
+
+            var json = JSON.stringify({
+                info: 'Disc Status',
+                exitCode: code,
+                programOutput: output
+            });
+
+            res.end(json);
         });
 
         res.end('');
@@ -80,9 +84,16 @@ function onShutdown(req, res, path)
 
     res.writeHead(200, {'Content-Type': 'text/plain'});
 
-    res.write('Shutting down server');
+    shell.exec('shutdown -kh now',function(code, output) {
 
-    res.end('');
+        var json = JSON.stringify({
+            info: 'Shutdown',
+            exitCode: code,
+            programOutput: output
+        });
+
+        res.end(json);
+    });
 }
 
 function onRaidStatus(req, res, path)
@@ -105,13 +116,17 @@ function onRaidStatus(req, res, path)
 
 function onBypass(req, res, path)
 {
-        console.log('URL unknown' + path);
+    console.log('URL unknown' + path);
 
-        res.writeHead(200, {'Content-Type': 'text/plain'});
+    res.writeHead(200, {'Content-Type': 'text/plain'});
 
-        res.write('function unknown');
+    var json = JSON.stringify({
+        info: path,
+        exitCode: -1,
+        programOutput: 'function unknown'
+    });
 
-        res.end('');
+    res.end(json);
 }
 
 function onGetStaticContent(req, res, url)
