@@ -16,6 +16,8 @@
   ================================================== -->
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
+    <!-- Scripts
+  ================================================== -->
     <script src="/s/js/jquery-1.11.1.min.js"></script>
     <script src="/s/js/jquery-ui.min.js"></script>
 
@@ -61,23 +63,16 @@
 
             $("#cmdShutdown").click(function(event){
                 $.getJSON('/server/shutdown/', function(jd) {
-                    $('#resDiscStatus').html('<p> Info: ' + jd.info + '</p>');
-                    $('#resDiscStatus').append('<p>Exit Code: ' + jd.exitCode + '</p>');
-                    $('#resDiscStatus').append('<p>Program Output: ' + jd.programOutput + '</p>');
+                    $('#resShutdownStatus').html('<p> Info: ' + jd.info + '</p>');
+                    $('#resShutdownStatus').append('<p>Exit Code: ' + jd.exitCode + '</p>');
+                    $('#resShutdownStatus').append('<p>Program Output: ' + jd.programOutput + '</p>');
                 });
             });
         });
-    </script>load1
+    </script>
 
 </head>
 <body>
-
-
-
-	<!-- Primary Page Layout
-	================================================== -->
-
-	<!-- Delete everything in this .container and get started on your own site! -->
 
 	<div class="container">
 		<div class="sixteen columns">
@@ -102,12 +97,12 @@
 		<div class="one-third column">
             <h3>System Shutdown</h3>
             <button id="cmdShutdown">Update</button>
+            <div id="resShutdownStatus">
+                ...
+            </div>
         </div>
 
-	</div><!-- container -->
+	</div>
 
-
-<!-- End Document
-================================================== -->
 </body>
 </html>
