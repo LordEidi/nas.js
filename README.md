@@ -1,7 +1,7 @@
 nas.js
 ======
 
-**nas.js** (c) 2014 by [SwordLord - the coding crew](http://www.swordlord.com/)
+**nas.js** (c) 2014-15 by [SwordLord - the coding crew](http://www.swordlord.com/)
 
 ## Introduction ##
 
@@ -10,12 +10,13 @@ nas.js
 
 ## Status ##
 
-**nas.js** is beta software and should be handled as such:
+**nas.js** is beta software and should be handled as such. While some commands are called with setuid wrappers, the arguments are not yet checked!
 
 
 ## Installation ##
 
-To be written.
+> npm install
+
 
 
 ## Configuration ##

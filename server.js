@@ -2,7 +2,7 @@
  **
  ** - nas.js -
  **
- ** Copyright 2014 by
+ ** Copyright 2014-15 by
  ** SwordLord - the coding crew - http://www.swordlord.com
  ** and contributing authors
  **
@@ -28,6 +28,8 @@
  ** $Id:
  **
  -----------------------------------------------------------------------------*/
+var config = require('./config').config;
+
 var http = require('http');
 var crossroads = require('crossroads');
 crossroads.ignoreState = true;
@@ -36,9 +38,11 @@ var url = require('url');
 var fs = require('fs');
 var shell = require('shelljs');
 
-function onDiscStatus(req, res, disc)
+function onMDStatus(req, res, disc)
 {
     res.writeHead(200, {'Content-Type': 'text/plain'});
+
+    console.log(disc);
 
 //    var str = "The best things in life are free";
 //    var patt = new RegExp("e");
@@ -48,10 +52,10 @@ function onDiscStatus(req, res, disc)
 
     if(disc == 'all')
     {
-        shell.exec('mdadm --detail /dev/md0', function (code, output) {
+        shell.exec('helpers/mdadm_detail /dev/md0', {silent:true}, function (code, output) {
 
             var json = JSON.stringify({
-                info: 'Disc Status',
+                info: 'MD Status all',
                 exitCode: code,
                 programOutput: output
             });
@@ -62,19 +66,35 @@ function onDiscStatus(req, res, disc)
     }
     else
     {
-        shell.exec('mdadm --detail /dev/md0',function(code, output) {
+        shell.exec('helpers/mdadm_detail /dev/' + disc, {silent:true}, function(code, output) {
 
             var json = JSON.stringify({
-                info: 'Disc Status',
+                info: 'MD Status ' + disc,
                 exitCode: code,
                 programOutput: output
             });
 
             res.end(json);
         });
-
-        res.end('');
     }
+}
+
+function onHDDStatus(req, res, disc)
+{
+    res.writeHead(200, {'Content-Type': 'text/plain'});
+
+    console.log(disc);
+
+    shell.exec('helpers/smartctl_h /dev/' + disc, function(code, output) {
+
+        var json = JSON.stringify({
+            info: 'Disc Status ' + disc,
+            exitCode: code,
+            programOutput: output
+        });
+
+        res.end(json);
+    });
 }
 
 
@@ -84,7 +104,7 @@ function onShutdown(req, res, path)
 
     res.writeHead(200, {'Content-Type': 'text/plain'});
 
-    shell.exec('shutdown -kh now',function(code, output) {
+    shell.exec('shutdown -kh now', {silent:true}, function(code, output) {
 
         var json = JSON.stringify({
             info: 'Shutdown',
@@ -102,7 +122,7 @@ function onRaidStatus(req, res, path)
 
     res.writeHead(200, {'Content-Type': 'text/plain'});
 
-    shell.exec('cat /proc/mdstat',function(code, output) {
+    shell.exec('cat /proc/mdstat', {silent:true}, function(code, output) {
 
         var json = JSON.stringify({
             info: 'RAID Status',
@@ -159,7 +179,8 @@ function onGetStaticContent(req, res, url)
 // -----------------------------------------------------------------------------
 crossroads.addRoute('/server/shutdown/', onShutdown);
 crossroads.addRoute('/raid/status/', onRaidStatus);
-crossroads.addRoute('/disc/{disc}/status', onDiscStatus);
+crossroads.addRoute('/md/{disc}/status', onMDStatus);
+crossroads.addRoute('/hdd/{disc}/status', onHDDStatus);
 
 crossroads.addRoute('/s/{url*}', onGetStaticContent);
 
@@ -174,5 +195,10 @@ var server = http.createServer(function (req, res)
 
 });
 
-server.listen(8888, '127.0.0.1');
-console.log('Server running on 127.0.0.1:8888');
+process.on('uncaughtException', function(err)
+{
+    console.log('Caught exception: ' + err);
+});
+
+server.listen(config.port, config.ip);
+console.log('Server running on %s:%s', config.ip, config.port);

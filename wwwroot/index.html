@@ -20,12 +20,13 @@
   ================================================== -->
     <script src="/s/js/jquery-1.11.1.min.js"></script>
     <script src="/s/js/jquery-ui.min.js"></script>
+	<script src="/s/js/underscore-min.js"></script>
 
 	<!-- CSS
   ================================================== -->
-	<link rel="stylesheet" href="/s/css/base.css">
+	<link rel="stylesheet" href="/s/css/normalize.css">
 	<link rel="stylesheet" href="/s/css/skeleton.css">
-	<link rel="stylesheet" href="/s/css/layout.css">
+	<link rel="stylesheet" href="/s/css/custom.css">
 
     <link rel="stylesheet" href="/s/css/jquery-ui.theme.min.css">
     <link rel="stylesheet" href="/s/css/jquery-ui.structure.min.css">
@@ -44,22 +45,47 @@
     <!-- Functions
         ================================================== -->
     <script type="text/javascript" language="javascript">
-        $(document).ready(function() {
+
+		function  loadMDStatus(disc)
+		{
+			$.getJSON('/md/' + disc + '/status/', function(jd) {
+				$('#res' + disc + 'Status').html('<p>' + jd.programOutput.replace(/(?:\r\n|\r|\n)/g, '<br />') + '</p>');
+			});
+		}
+
+		function  loadHDDStatus(disc)
+		{
+			$.getJSON('/hdd/' + disc + '/status/', function(jd) {
+				content = jd.programOutput.replace(/(?:\r\n|\r|\n)/g, '<br />');
+				content = content.replace(/smartctl 5.41 2011-06-09 r3365/g,'');
+
+				$('#res' + disc + 'Status').html('<p>' + content + '</p>');
+			});
+		}
+
+		function  loadRaidStatus()
+		{
+			$.getJSON('/raid/status/', function(jd) {
+				$('#resRaidStatus').html('<p>' + jd.programOutput.replace(/(?:\r\n|\r|\n)/g, '<br />') + '</p>');
+			});
+		}
+
+		$(document).ready(function() {
             $("#cmdRaidStatus").click(function(event){
-                $.getJSON('/raid/status/', function(jd) {
-                    $('#resRaidStatus').html('<p> Info: ' + jd.info + '</p>');
-                    $('#resRaidStatus').append('<p>Exit Code: ' + jd.exitCode + '</p>');
-                    $('#resRaidStatus').append('<p>Program Output: ' + jd.programOutput + '</p>');
-                });
+				loadRaidStatus();
             });
 
-            $("#cmdDiscStatus").click(function(event){
-                $.getJSON('/disc/all/status/', function(jd) {
-                    $('#resDiscStatus').html('<p> Info: ' + jd.info + '</p>');
-                    $('#resDiscStatus').append('<p>Exit Code: ' + jd.exitCode + '</p>');
-                    $('#resDiscStatus').append('<p>Program Output: ' + jd.programOutput + '</p>');
-                });
-            });
+			$("#cmdmd0Status").click(function(event){
+				loadMDStatus("md0");
+			});
+
+			$("#cmdmd1Status").click(function(event){
+				loadMDStatus("md1");
+			});
+
+			$("#cmdmd2Status").click(function(event){
+				loadMDStatus("md2");
+			});
 
             $("#cmdShutdown").click(function(event){
                 $.getJSON('/server/shutdown/', function(jd) {
@@ -68,6 +94,49 @@
                     $('#resShutdownStatus').append('<p>Program Output: ' + jd.programOutput + '</p>');
                 });
             });
+
+			$("#cmdRAID").click(function(event){
+				$('#md,#system,#hdd').hide( 0, function() {
+					$('#raid').show(function() {
+						// Animation complete.
+						loadRaidStatus();
+					});
+				});
+			});
+
+			$("#cmdMD").click(function(event){
+				$('#raid,#system,#hdd').hide( 0, function() {
+					$('#md').show(function() {
+						// Animation complete.
+						loadMDStatus("md0");
+						loadMDStatus("md1");
+						loadMDStatus("md2");
+					});
+				});
+			});
+
+			$("#cmdHDD").click(function(event){
+				$('#raid,#system,#md').hide( 0, function() {
+					$('#hdd').show(function() {
+						// Animation complete.
+						loadHDDStatus("sda");
+						loadHDDStatus("sdb");
+						loadHDDStatus("sdc");
+						loadHDDStatus("sdd");
+						loadHDDStatus("sde");
+						loadHDDStatus("sdf");
+					});
+				});
+			});
+
+			$("#cmdAdmin").click(function(event){
+				$('#raid,#md,#hdd').hide( 0, function() {
+					$('#system').show(function() {
+						// Animation complete.
+					});
+				});
+			});
+
         });
     </script>
 
@@ -75,33 +144,137 @@
 <body>
 
 	<div class="container">
-		<div class="sixteen columns">
-			<h1 class="remove-bottom" style="margin-top: 40px">NAS.js</h1>
-			<h5>Version 0.1.0</h5>
-			<hr />
-		</div>
-		<div class="one-third column">
-			<h3>RAID Status</h3>
-            <button id="cmdRaidStatus">Update</button>
-            <div id="resRaidStatus">
-                ...
-            </div>
-		</div>
-		<div class="one-third column">
-			<h3>Discs Status</h3>
-            <button id="cmdDiscStatus">Update</button>
-            <div id="resDiscStatus">
-                ...
-            </div>
-		</div>
-		<div class="one-third column">
-            <h3>System Shutdown</h3>
-            <button id="cmdShutdown">Update</button>
-            <div id="resShutdownStatus">
-                ...
-            </div>
-        </div>
+		<section class="header">
+			<div class="row">
+				<div class="sixteen columns">
+					<h1 class="remove-bottom" style="margin-top: 40px">NAS.js</h1>
+					<h5>Version 0.1.0</h5>
+				</div>
+			</div>
+		</section>
 
+		<div class="navbar-spacer"></div>
+		<nav class="navbar">
+			<div class="container">
+				<ul class="navbar-list">
+					<li class="navbar-item"><button class="button-primary" id="cmdRAID">RAID</button>&nbsp;</li>
+					<li class="navbar-item"><button class="button-primary" id="cmdMD">MD</button>&nbsp;</li>
+					<li class="navbar-item"><button class="button-primary" id="cmdHDD">HDD</button>&nbsp;</li>
+					<li class="navbar-item"><button class="button-primary" id="cmdAdmin">Admin</button>&nbsp;</li>
+				</ul>
+			</div>
+		</nav>
+
+		<div class="docs-section" id="raid">
+			<div class="row">
+			<div class="one-third column">
+				<h3>RAID Status</h3>
+				<button id="cmdRaidStatus">Update</button>
+				<div id="resRaidStatus">
+					...
+				</div>
+			</div>
+			<div class="one-third column">
+
+			</div>
+			<div class="one-third column">
+
+			</div>
+			</div>
+		</div>
+
+		<div class="docs-section invisible" id="md">
+			<div class="row">
+				<div class="one-third column">
+					<h3>md0 Status</h3>
+					<button id="cmdmd0Status">Update</button>
+					<div id="resmd0Status">
+						...
+					</div>
+				</div>
+				<div class="one-third column">
+					<h3>md1 Status</h3>
+					<button id="cmdmd1Status">Update</button>
+					<div id="resmd1Status">
+						...
+					</div>
+				</div>
+				<div class="one-third column">
+					<h3>md2 Status</h3>
+					<button id="cmdmd2Status">Update</button>
+					<div id="resmd2Status">
+						...
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="docs-section invisible" id="hdd">
+			<div class="row">
+				<div class="one-third column">
+					<h3>sda Status</h3>
+					<button id="cmdsdaStatus">Update</button>
+					<div id="ressdaStatus">
+						...
+					</div>
+				</div>
+				<div class="one-third column">
+					<h3>sdb Status</h3>
+					<button id="cmdsdbStatus">Update</button>
+					<div id="ressdbStatus">
+						...
+					</div>
+				</div>
+				<div class="one-third column">
+					<h3>sdc Status</h3>
+					<button id="cmdsdcStatus">Update</button>
+					<div id="ressdcStatus">
+						...
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="one-third column">
+					<h3>sdd Status</h3>
+					<button id="cmdsddStatus">Update</button>
+					<div id="ressddStatus">
+						...
+					</div>
+				</div>
+				<div class="one-third column">
+					<h3>sde Status</h3>
+					<button id="cmdsdeStatus">Update</button>
+					<div id="ressdeStatus">
+						...
+					</div>
+				</div>
+				<div class="one-third column">
+					<h3>sdf Status</h3>
+					<button id="cmdsdfStatus">Update</button>
+					<div id="ressdfStatus">
+						...
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="docs-section invisible" id="system">
+			<div class="row">
+				<div class="one-third column">
+
+				</div>
+				<div class="one-third column">
+
+				</div>
+				<div class="one-third column">
+					<h3>System Shutdown</h3>
+					<button id="cmdShutdown">Update</button>
+					<div id="resShutdownStatus">
+						...
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 
 </body>
